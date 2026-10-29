@@ -2,7 +2,7 @@
 
 ## מסמך דרישות
 
-**המטרה:** בסוף שיעורי הבית, במחשב שלכן בבית, פקודה אחת מרימה את כל ShopList, והאפליקציה עובדת בדפדפן ב-`http://localhost:8080`. מה שהתחלתן בכיתה, משלימות כאן.
+**המטרה:** בסוף שיעורי הבית, במחשב שלכן בבית, פקודה אחת מרימה את כל ShopList, והאפליקציה עובדת בדפדפן ב-`http://localhost:8080`. מה שהתחלתן בכיתה, משלימות כאן. `nginx.conf` ו-`init.sql` כבר בריפו: כתבנו אותם יחד בכיתה.
 
 **הגשה:** push ל-fork שלכן, **לפני תחילת שיעור 5**.
 
@@ -50,11 +50,12 @@ devops-2027-shoplist/
 │   │   └── Dockerfile          ← ד2
 │   └── frontend/
 │       ├── index.html, app.js, style.css, build.js   (קיימים)
-│       ├── nginx.conf          ← ד3
+│       ├── nginx.conf          (קיים, כתבנו בכיתה) ← ד3
 │       ├── Dockerfile          ← ד4
 │       └── Dockerfile.multistage   ← ד8
+├── sql/
+│   └── init.sql                (קיים, כתבנו בכיתה) ← ד5
 ├── docker/
-│   ├── init.sql                ← ד5
 │   └── docker-compose.yml      ← ד6
 └── lessons/04-compose-networks-volumes/homework/
     ├── answers.md              ← ד10
@@ -96,14 +97,18 @@ devops-2027-shoplist/
 - [ ] **בלי** `npm install`: ל-stats אין חבילות חיצוניות.
 - [ ] `EXPOSE 3000`, ו-`CMD` בצורת exec שמריץ `node server.js`.
 
-### ד3 — nginx.conf
-**קובץ:** `app/frontend/nginx.conf` · **עזרה:** שיעור 4, guide.md, שלב 2
+### ד3 — nginx.conf: לבדוק ולהבין
+**קובץ:** `app/frontend/nginx.conf` · **קיים בריפו**, כתבנו אותו יחד בכיתה · **הסבר:** שיעור 4, guide.md, שלב 2
+
+לא כותבים מחדש. פותחים את הקובץ, ומוודאות שאתן מבינות כל שורה:
 
 - [ ] בלוק `server` שמאזין בפורט 80.
-- [ ] `location /`: מגיש קבצים מ-`/usr/share/nginx/html`, עם `try_files $uri $uri/ /index.html;`.
+- [ ] `location /`: מגיש קבצים מ-`/usr/share/nginx/html`, עם `try_files`.
 - [ ] `location /api/stats`: מעביר ל-`http://stats:3000/stats`.
-- [ ] `location /api/`: מעביר ל-`http://backend:5000/`, **עם לוכסן בסוף**.
-- [ ] כל שורה בתוך בלוק מסתיימת ב-`;`.
+- [ ] `location /api/`: מעביר ל-`http://backend:5000/`, עם לוכסן בסוף.
+- [ ] יכולות להסביר במילים שלכן למה `/api/stats` מגיע ל-stats ולא ל-backend, ומה הלוכסן בסוף עושה. (שאלה 7 ב-ד10.)
+
+> **אין לכן את הקובץ?** לעשות **Sync fork** ב-GitHub, ואז `git pull` בבית.
 
 ### ד4 — Dockerfile ל-frontend
 **קובץ:** `app/frontend/Dockerfile` · **עזרה:** שיעור 4, guide.md, שלב 3
@@ -113,11 +118,10 @@ devops-2027-shoplist/
 - [ ] מעתיק את `nginx.conf` ל-`/etc/nginx/conf.d/default.conf`.
 - [ ] `EXPOSE 80`. **בלי `CMD`**: יורשים אותו מ-nginx.
 
-### ד5 — init.sql
-**קובץ:** `docker/init.sql` · **עזרה:** שיעור 4, guide.md, שלב 4
+### ד5 — init.sql: לבדוק
+**קובץ:** `sql/init.sql` · **קיים בריפו**, כתבנו אותו יחד בכיתה · **הסבר:** שיעור 4, guide.md, שלב 4
 
-- [ ] יוצר טבלה בשם `products`, עם `IF NOT EXISTS`.
-- [ ] שש עמודות, **בשמות האלה בדיוק** (ה-backend מחפש אותם):
+לא כותבים מחדש. מוודאות שהקובץ יוצר טבלה בשם `products`, עם `IF NOT EXISTS`, ועם שש העמודות האלה בדיוק (ה-backend מחפש אותן לפי השם):
 
 | עמודה | סוג | חובה? | ברירת מחדל |
 |---|---|---|---|
@@ -127,6 +131,8 @@ devops-2027-shoplist/
 | `quantity` | `INTEGER` | כן | `1` |
 | `category` | `VARCHAR(30)` | כן | `'Other'` |
 | `bought` | `BOOLEAN` | כן | `FALSE` |
+
+> **שימו לב:** הקובץ נמצא בתיקייה `sql`, ולא ליד קובץ ה-Compose. לכן בקובץ ה-Compose הנתיב אליו מתחיל ב-`../` (ד6).
 
 ### ד6 — docker-compose.yml
 **קובץ:** `docker/docker-compose.yml` · **עזרה:** שיעור 4, guide.md, שלבים 5–6
@@ -142,7 +148,7 @@ devops-2027-shoplist/
 - [ ] `environment`: `POSTGRES_DB: shoplist`, `POSTGRES_USER: shopuser`, `POSTGRES_PASSWORD: shoppass`.
 - [ ] `volumes`, שתי שורות:
   - **named volume** בשם `postgres-data`, לתיקייה `/var/lib/postgresql/data`.
-  - **bind mount** של `./init.sql` לקובץ `/docker-entrypoint-initdb.d/init.sql`.
+  - **bind mount** של `../sql/init.sql` לקובץ `/docker-entrypoint-initdb.d/init.sql`. הנתיב יחסי למיקום של קובץ ה-Compose: יוצאות מ-`docker` (`..`) ונכנסות ל-`sql`.
 - [ ] `healthcheck` עם `pg_isready -U shopuser -d shoplist`: `interval: 10s`, `timeout: 5s`, `retries: 5`.
 - [ ] **בלי** `ports`.
 
@@ -232,7 +238,7 @@ EXPOSE 80
 |---|---|---|
 | `FROM ____` | אותו image של Nginx כמו ב-Dockerfile הרגיל | `FROM` שני מתחיל image **חדש ונקי** |
 | `COPY --from=____ ____ ...` | שם השלב הראשון, ואחריו התיקייה שנוצרה בו (נתיב מלא, מתחיל ב-`/app`) | מעתיקים **מהשלב ההוא**, רק את `dist` |
-| `COPY ____ /etc/nginx/...` | קובץ ההגדרות שכתבתן ב-ד3 | **בלי** `--from`: הקובץ מגיע מהמחשב |
+| `COPY ____ /etc/nginx/...` | קובץ ההגדרות מ-ד3 | **בלי** `--from`: הקובץ מגיע מהמחשב |
 
 - [ ] בשלב 2 **אין** `CMD`. (למה? שאלה 5 ב-ד10.)
 
@@ -271,10 +277,11 @@ docker run --rm shoplist-frontend:multi node --version
 
 1. ל-backend אין `ports`. איך stats מגיע אליו? ואיך הדפדפן מגיע אליו?
 2. עושים `docker compose down` ואחר כך `up`. המוצרים נשארו? ומה אם עושים `down -v`? הסבירו לפי סוג ה-volume.
-3. השורה `./init.sql:/docker-entrypoint-initdb.d/init.sql`: איזה סוג volume זה, ואיך יודעים? מה יקרה אם תשנו את `init.sql` אחרי שהמסד כבר נוצר?
+3. השורה `../sql/init.sql:/docker-entrypoint-initdb.d/init.sql`: איזה סוג volume זה, ואיך יודעים? מה יקרה אם תשנו את `init.sql` אחרי שהמסד כבר נוצר?
 4. מה שם הרשת ש-Compose יצר, ומה שם ה-volume? (להריץ `docker network ls` ו-`docker volume ls`, ולהסביר מאיפה הגיעו השמות.)
 5. ב-`Dockerfile.multistage`: מה יש ב-image הסופי ומה אין? למה אין `CMD`? ולמה ל-stats לא צריך multi-stage?
 6. שלושת הגדלים מ-ד8 (`single`, `multi`, `kitchen`). למה `multi` כמעט בגודל של `single`?
+7. ב-`nginx.conf`: בקשה ל-`/api/stats` מתאימה גם ל-`location /api/`. למה היא מגיעה ל-stats? ומה קורה לבקשה `/api/products` בגלל הלוכסן בסוף `http://backend:5000/`?
 
 ---
 
@@ -307,8 +314,9 @@ git push
 | `Welcome to nginx!` בדפדפן | חסרה שורת `COPY nginx.conf` | לתקן ו-`up -d --build` |
 | `host not found in upstream` | שגיאת כתיב בשם service | השמות ב-`nginx.conf` וב-compose חייבים להיות זהים |
 | `502 Bad Gateway` | backend או stats לא עלו | `docker compose ps`, ואז `docker compose logs backend` |
-| `relation "products" does not exist` | `init.sql` נוסף אחרי שהמסד נוצר | `docker compose down -v` ואז `up -d` |
+| `relation "products" does not exist` | `init.sql` לא רץ: נתיב שגוי ב-bind mount, או שנוסף אחרי שהמסד נוצר | לבדוק `../sql/init.sql`, ואז `docker compose down -v` ו-`up -d` |
 | `column "quantity" does not exist` | `init.sql` ישן, בלי שש העמודות | לתקן את `init.sql`, ואז `down -v` ו-`up -d` |
+| Sync fork מראה **conflict** ב-`nginx.conf` או ב-`init.sql` | יצרתן את הקובץ גם ב-fork שלכן | לפנות למורה לפני שממשיכות |
 | `port is already allocated` | 8080 תפוס | `docker ps`, ולמחוק את ה-container שתופס |
 | הדף לא השתנה אחרי שינוי | הדפדפן זוכר את הישן | Ctrl+F5 |
 | `the input device is not a TTY` | Git Bash עם `exec` | `docker compose exec -T ...` |
@@ -329,8 +337,8 @@ git push
 
 | דרישה | נקודות |
 |---|---|
-| ד1–ד4: שלושה Dockerfiles ו-`nginx.conf` | 20 |
-| ד5–ד6: `init.sql` ו-`docker-compose.yml` לפי כל הדרישות | 30 |
+| ד1, ד2, ד4: שלושה Dockerfiles | 20 |
+| ד6: `docker-compose.yml` לפי כל הדרישות | 30 |
 | ד7, ד9: האפליקציה עובדת, עם צילומי מסך | 20 |
 | ד8: multi-stage עובד ומחובר ל-Compose | 20 |
 | ד10: שאלות | 10 |
