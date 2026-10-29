@@ -394,7 +394,7 @@ volumes:
 | `ports` | **רק ל-frontend.** כל השאר פנימיים |
 | `volumes:` בסוף | רשימת הארוניות. כאן Docker לומד ש-`postgres-data` הוא named volume |
 
-> **ברשת של הכיתה (נטפרי):** Compose בונה את ה-backend מה-Dockerfile שלכן, כולל בלוק נטפרי משיעור 2. אין צורך בשינוי.
+> **ברשת של נטפרי:** אם ה-build של ה-backend נכשל ב-`pip install` עם שגיאת SSL, להוסיף ל-`pip install` ב-Dockerfile את הדגלים `--trusted-host pypi.org --trusted-host files.pythonhosted.org`.
 
 ---
 

@@ -81,7 +81,11 @@ devops-2027-shoplist/
 - [ ] `EXPOSE 5000`.
 - [ ] `CMD` בצורת exec (סוגריים מרובעים) שמריץ `python app.py`.
 
-> **נטפרי בבית?** אם ה-build נכשל ב-`pip install` עם שגיאת SSL או `CERTIFICATE_VERIFY_FAILED`, להוסיף את בלוק הנטפרי **מתחת לשורת ה-`FROM`**, בדיוק כמו בשיעור 2, שלב 3. בלי נטפרי, לא צריך אותו.
+> **נטפרי בבית?** אם ה-build נכשל ב-`pip install` עם שגיאת SSL או `CERTIFICATE_VERIFY_FAILED`, להוסיף לפקודת ה-`pip install` שני דגלים, שאומרים ל-pip לסמוך על השרתים של PyPI:
+> ```dockerfile
+> RUN pip install --no-cache-dir --trusted-host pypi.org --trusted-host files.pythonhosted.org -r requirements.txt
+> ```
+> בלי נטפרי, לא צריך אותם.
 
 ### ד2 — Dockerfile ל-stats
 **קובץ:** `app/stats/Dockerfile` · **עזרה:** שיעור 4, guide.md, שלב 1
@@ -299,7 +303,7 @@ git push
 | `no configuration file provided` | הפקודה רצה מחוץ ל-`docker` | `cd docker` |
 | `service "postgres" refers to undefined volume` | חסר `volumes:` בסוף הקובץ | להוסיף `volumes:` ו-`postgres-data:` |
 | `failed to read dockerfile` | הקובץ נשמר בשם `Dockerfile.txt` | לשנות שם. ב-PowerShell: `dir` מראה את השם המלא |
-| `CERTIFICATE_VERIFY_FAILED` ב-build של backend | נטפרי | בלוק הנטפרי מתחת ל-`FROM` (ד1) |
+| `CERTIFICATE_VERIFY_FAILED` ב-build של backend | נטפרי | `--trusted-host` ב-`pip install` (ד1) |
 | `Welcome to nginx!` בדפדפן | חסרה שורת `COPY nginx.conf` | לתקן ו-`up -d --build` |
 | `host not found in upstream` | שגיאת כתיב בשם service | השמות ב-`nginx.conf` וב-compose חייבים להיות זהים |
 | `502 Bad Gateway` | backend או stats לא עלו | `docker compose ps`, ואז `docker compose logs backend` |
