@@ -18,4 +18,10 @@ spec:
           image: shoplist-frontend:local
           imagePullPolicy: Never
           ports:
-            - containerPort: 80
+            - containerPort: 3000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10

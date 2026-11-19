@@ -46,4 +46,4 @@ services:
       - stats
 
 volumes:
-  postgres-data:
+  postgres-data:  

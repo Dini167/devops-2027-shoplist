@@ -62,7 +62,7 @@ kubectl get nodes
   localhost:30080
         │
 ┌───────┼──────────────── cluster (docker-desktop) ────────────────────────┐
-│       │                    namespace: shoplist                           │
+│       │                    namespace: {{ .Release.Namespace }}                           │
 │       ▼                                                                  │
 │  Service frontend ──▶ pod frontend (Nginx)                               │
 │  (NodePort 30080)          │  /api/stats        │  /api/...            │
@@ -108,12 +108,12 @@ apiVersion: v1          # איזו גרסה של ה-API מכירה את הסוג
 kind: Service           # מה זה: Deployment, Service, Secret...
 metadata:               # השם, ובאיזה namespace
   name: backend
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:                   # המצב הרצוי. כאן כל סוג שונה
   ...
 ```
 
-> **השורה `namespace: shoplist` בכל קובץ:** ככה לא צריך לזכור `-n shoplist` ב-`apply`. אבל ב-`get`, `logs` ו-`describe` עדיין צריך.
+> **השורה `namespace: {{ .Release.Namespace }}` בכל קובץ:** ככה לא צריך לזכור `-n shoplist` ב-`apply`. אבל ב-`get`, `logs` ו-`describe` עדיין צריך.
 
 ### labels ו-selectors: מדבקות
 
@@ -302,7 +302,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: postgres-secret
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 type: Opaque
 data:
   POSTGRES_DB: c2hvcGxpc3Q=
@@ -334,7 +334,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: postgres-init
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 data:
   init.sql: |
     CREATE TABLE IF NOT EXISTS products (
@@ -363,7 +363,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -396,7 +396,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -454,7 +454,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: postgres
@@ -495,7 +495,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -553,7 +553,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: backend
@@ -595,7 +595,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: stats
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -632,7 +632,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: stats
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: stats
@@ -650,7 +650,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -678,7 +678,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 spec:
   type: NodePort
   selector:
@@ -785,7 +785,7 @@ kubectl apply -f kubernetes/
 | בעיה | סיבה | פתרון |
 |---|---|---|
 | `ErrImageNeverPull` | ה-image לא נבנה, או שהשם לא תואם בדיוק | `docker images shoplist-*`, ולבנות לפי שלב 1. השם ב-`image:` חייב להיות זהה, כולל `:local` |
-| `No resources found in shoplist namespace` | ה-apply נכשל, או שחסר `namespace: shoplist` בקובץ | לקרוא את הפלט של `kubectl apply`. לבדוק את `metadata` |
+| `No resources found in shoplist namespace` | ה-apply נכשל, או שחסר `namespace: {{ .Release.Namespace }}` בקובץ | לקרוא את הפלט של `kubectl apply`. לבדוק את `metadata` |
 | `error converting YAML to JSON` | Tab, או הזחה שגויה | רווחים בלבד. השגיאה אומרת באיזו שורה |
 | `selector does not match template labels` | מדבקה שונה ב-`selector` וב-`template` | אותה מילה בדיוק בשני המקומות |
 | pod תקוע ב-`0/1` | ה-readinessProbe נכשל | `kubectl describe pod -n shoplist -l app=backend`, ולחפש למטה `Readiness probe failed` |

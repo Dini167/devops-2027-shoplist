@@ -60,7 +60,7 @@ helm version
 
 | מה | איפה | כמה פעמים |
 |---|---|---|
-| `namespace: shoplist` | כמעט בכל קובץ | 11 |
+| `namespace: {{ .Release.Namespace }}` | כמעט בכל קובץ | 11 |
 | `nodePort: 30080` | frontend-service | 1 (אחרת שתי האפליקציות ינסו את אותה דלת) |
 | `replicas` | בשלושה Deployments | 3, אם רוצים מספר אחר |
 | הסיסמה | ב-Secret (ב-base64), וגם בבדיקה של postgres | 2, ושניהם חייבים להתאים |
@@ -296,7 +296,7 @@ helm template shop ./helm/shoplist
 בכל 11 הקבצים, משנות את השורה:
 
 ```yaml
-  namespace: shoplist
+  namespace: {{ .Release.Namespace }}
 ```
 
 ל:
@@ -305,7 +305,7 @@ helm template shop ./helm/shoplist
   namespace: {{ .Release.Namespace }}
 ```
 
-> **ב-VS Code:** `Ctrl+Shift+H` (חיפוש והחלפה בכל הקבצים). בשדה "files to include" לכתוב `helm/shoplist/templates`. לחפש `namespace: shoplist`, להחליף ב-`namespace: {{ .Release.Namespace }}`.
+> **ב-VS Code:** `Ctrl+Shift+H` (חיפוש והחלפה בכל הקבצים). בשדה "files to include" לכתוב `helm/shoplist/templates`. לחפש `namespace: {{ .Release.Namespace }}`, להחליף ב-`namespace: {{ .Release.Namespace }}`.
 
 בודקות:
 

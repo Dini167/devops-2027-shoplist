@@ -77,7 +77,7 @@ devops-2027-shoplist/
 ### ד2 — namespace ו-postgres (6 קבצים)
 **קבצים:** `namespace.yml`, `postgres-secret.yml`, `postgres-configmap.yml`, `postgres-pvc.yml`, `postgres-deployment.yml`, `postgres-service.yml` · **עזרה:** guide.md, שלבים 2–7
 
-- [ ] בכל קובץ: `namespace: shoplist` תחת `metadata` (חוץ מ-`namespace.yml` עצמו).
+- [ ] בכל קובץ: `namespace: {{ .Release.Namespace }}` תחת `metadata` (חוץ מ-`namespace.yml` עצמו).
 - [ ] ה-Secret: שלושה מפתחות (`POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`), כל ערך ב-base64. **קודדתן בעצמכן**, עם הפקודה מהמדריך, ובדקתן שהפענוח מחזיר את המילה הנכונה.
 - [ ] ה-ConfigMap: התוכן זהה ל-`sql/init.sql`, כולל 6 העמודות.
 - [ ] ה-PVC: `ReadWriteOnce`, `1Gi`. ב-`kubectl get pvc -n shoplist` הוא `Bound`.
